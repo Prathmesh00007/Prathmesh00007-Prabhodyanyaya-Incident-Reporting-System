@@ -1,67 +1,33 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../../stores/authStore";
-import axios from "axios";
-
-const CLOUDINARY_UPLOAD_PRESET = "your_unsigned_preset";
-const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
 const IncidentForm = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     location: "",
-    severity: "low",
+    severity: "low", // Default value
+    image: "",
   });
 
-  const [photoFile, setPhotoFile] = useState(null);
   const { reportIncident, isReportingIncident } = useAuthStore();
 
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
+  const [photoFile, setPhotoFile] = useState(null);
 
   const handlePhotoFile = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setPhotoFile(file);
-    }
+    if (file) setPhotoFile(file);
   };
 
-  const uploadImageToCloudinary = async (file) => {
-    const cloudForm = new FormData();
-    cloudForm.append("file", file);
-    cloudForm.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    cloudForm.append("cloud_name", CLOUDINARY_CLOUD_NAME);
 
-    const res = await axios.post(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-      cloudForm
-    );
-
-    return res.data.secure_url;
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    try {
-      let imageUrl = "";
-
-      // Upload image to Cloudinary
-      if (photoFile) {
-        imageUrl = await uploadImageToCloudinary(photoFile);
-      }
-
-      const payload = {
-        ...formData,
-        image: imageUrl,
-      };
-
-      await reportIncident(payload);
-    } catch (err) {
-      console.error("Error submitting incident:", err);
-    }
+    await reportIncident(formData);
   };
 
   return (
@@ -74,16 +40,78 @@ const IncidentForm = () => {
           Report an Incident
         </h1>
 
-        {/* All form fields remain unchanged... */}
+        {/* Title */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2" htmlFor="title">
+            Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Enter a title for the incident"
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
+        {/* Description */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2" htmlFor="description">
+            Description
+          </label>
+          <textarea
+            id="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows="4"
+            placeholder="Provide a detailed description of the incident"
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ></textarea>
+        </div>
+
+        {/* Location */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2" htmlFor="location">
+            Location
+          </label>
+          <input
+            type="text"
+            id="location"
+            value={formData.location}
+            onChange={handleChange}
+            placeholder="Enter the location of the incident"
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Severity */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2" htmlFor="severity">
+            Severity
+          </label>
+          <select
+            id="severity"
+            value={formData.severity}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+
+        {/* Image Upload */}
         <div className="mb-6">
-          <label htmlFor="image" className="block text-gray-700 font-medium mb-2">
+          <label className="block text-gray-700 font-medium mb-2" htmlFor="images">
             Upload Image
           </label>
           <input
-            id="image"
             type="file"
-            accept="image/*"
+            id="images"
+            value={formData.photoFile}
             onChange={handlePhotoFile}
             className="w-full text-gray-700"
           />
@@ -92,11 +120,12 @@ const IncidentForm = () => {
           </p>
         </div>
 
+        {/* Submit Button */}
         <div className="text-center">
           <button
             type="submit"
+            className="bg-blue-500 text-white font-medium px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={isReportingIncident}
-            className="bg-blue-500 text-white font-medium px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isReportingIncident ? "Submitting..." : "Submit Incident"}
           </button>
