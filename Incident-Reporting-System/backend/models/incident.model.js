@@ -50,6 +50,23 @@ const incidentSchema = new mongoose.Schema({
             },
         },
     ],
+    feedback: {
+        text: {
+            type: String,
+        },
+        rating: {
+            type: Number,
+            min: 1,
+            max: 5,
+        },
+        submittedAt: {
+            type: Date,
+        },
+        submittedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
+    },
 }, { timestamps: true }); // Automatically manage createdAt and updatedAt
 
 module.exports = mongoose.model('Incident', incidentSchema);

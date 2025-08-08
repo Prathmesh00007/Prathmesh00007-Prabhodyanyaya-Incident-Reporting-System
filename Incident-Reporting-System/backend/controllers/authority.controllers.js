@@ -212,3 +212,208 @@ exports.updateIncident = async (req, res) => {
         });
     }
 };
+
+exports.assignIncident = async (req, res) => {
+    try {
+        const { incidentId, assignedTo } = req.body;
+
+        if (!incidentId || !assignedTo) {
+            return res.status(400).json({
+                message: "Incident ID and assigned user are required",
+                success: false
+            });
+        }
+
+        const incident = await incidentModel.findById(incidentId);
+        if (!incident) {
+            return res.status(404).json({
+                message: "Incident not found",
+                success: false
+            });
+        }
+
+        const assignedUser = await User.findById(assignedTo);
+        if (!assignedUser || assignedUser.role !== 'authority') {
+            return res.status(400).json({
+                message: "Invalid authority user",
+                success: false
+            });
+        }
+
+        incident.assignedTo = assignedTo;
+        incident.status = 'under review';
+        await incident.save();
+
+        // Add notification to assigned authority
+        assignedUser.notifications.push({
+            text: `You have been assigned incident: ${incident.title}`,
+            incidentId: incidentId
+        });
+        await assignedUser.save();
+
+        return res.json({
+            message: "Incident assigned successfully",
+            success: true,
+            incident
+        });
+    } catch (error) {
+        console.error("Error assigning incident:", error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
+    }
+};
+
+exports.updateIncidentStatus = async (req, res) => {
+    try {
+        const { incidentId, status } = req.body;
+
+        if (!incidentId || !status) {
+            return res.status(400).json({
+                message: "Incident ID and status are required",
+                success: false
+            });
+        }
+
+        const validStatuses = ['reported', 'under review', 'resolved', 'dismissed'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({
+                message: "Invalid status. Must be one of: reported, under review, resolved, dismissed",
+                success: false
+            });
+        }
+
+        const incident = await incidentModel.findById(incidentId);
+        if (!incident) {
+            return res.status(404).json({
+                message: "Incident not found",
+                success: false
+            });
+        }
+
+        incident.status = status;
+        await incident.save();
+
+        // Add notification to reporter
+        const reporter = await User.findById(incident.reportedBy);
+        if (reporter) {
+            reporter.notifications.push({
+                text: `Your incident "${incident.title}" status has been updated to: ${status}`,
+                incidentId: incidentId
+            });
+            await reporter.save();
+        }
+
+        return res.json({
+            message: "Incident status updated successfully",
+            success: true,
+            incident
+        });
+    } catch (error) {
+        console.error("Error updating incident status:", error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
+    }
+};
+
+exports.getAssignedIncidents = async (req, res) => {
+    try {
+        const authorityId = req.user._id;
+        
+        const incidents = await incidentModel.find({ assignedTo: authorityId })
+            .populate('reportedBy', 'firstName lastName email')
+            .sort({ createdAt: -1 });
+
+        return res.json({
+            message: "Assigned incidents fetched successfully",
+            success: true,
+            incidents
+        });
+    } catch (error) {
+        console.error("Error fetching assigned incidents:", error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
+    }
+};
+
+exports.getAuthorityDashboard = async (req, res) => {
+    try {
+        const authorityId = req.user._id;
+
+        // Get counts for different incident statuses
+        const totalAssigned = await incidentModel.countDocuments({ assignedTo: authorityId });
+        const resolvedCount = await incidentModel.countDocuments({ 
+            assignedTo: authorityId, 
+            status: 'resolved' 
+        });
+        const inProgressCount = await incidentModel.countDocuments({ 
+            assignedTo: authorityId, 
+            status: 'under review' 
+        });
+        const pendingCount = await incidentModel.countDocuments({ 
+            assignedTo: authorityId, 
+            status: 'reported' 
+        });
+
+        // Get recent incidents
+        const recentIncidents = await incidentModel.find({ assignedTo: authorityId })
+            .populate('reportedBy', 'firstName lastName email')
+            .sort({ createdAt: -1 })
+            .limit(5);
+
+        return res.json({
+            success: true,
+            stats: {
+                totalAssigned,
+                resolvedCount,
+                inProgressCount,
+                pendingCount,
+                resolutionRate: totalAssigned > 0 ? ((resolvedCount / totalAssigned) * 100).toFixed(2) : 0
+            },
+            recentIncidents
+        });
+    } catch (error) {
+        console.error("Error fetching authority dashboard:", error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
+    }
+};
+
+exports.getFeedback = async (req, res) => {
+    try {
+        // Get all incidents with feedback
+        const incidentsWithFeedback = await incidentModel.find({
+            feedback: { $exists: true, $ne: null }
+        }).populate('reportedBy', 'firstName lastName');
+
+        const feedbackData = incidentsWithFeedback.map(incident => ({
+            _id: incident._id,
+            incident: {
+                _id: incident._id,
+                title: incident.title
+            },
+            text: incident.feedback.text,
+            rating: incident.feedback.rating,
+            submittedAt: incident.feedback.submittedAt,
+            reporter: incident.reportedBy
+        }));
+
+        return res.json({
+            success: true,
+            feedback: feedbackData
+        });
+    } catch (error) {
+        console.error("Error fetching feedback:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};

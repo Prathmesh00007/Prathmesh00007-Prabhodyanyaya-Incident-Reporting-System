@@ -1,6 +1,6 @@
 const registeredUsersModel = require('../models/registeredUsers.model');
-
 const User = require('../models/user.model.js'); 
+const Incident = require('../models/incident.model.js');
 const bcrypt = require('bcryptjs')
 
 exports.verify = async (req, res) => {
@@ -129,6 +129,87 @@ exports.removeUser = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Internal server error", // Return appropriate error response
+        });
+    }
+};
+
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({ role: 'user' }).select('-password');
+        
+        return res.status(200).json({
+            success: true,
+            users: users,
+            count: users.length
+        });
+    } catch (error) {
+        console.error("Error in fetching all users: ", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+
+exports.getDashboardStats = async (req, res) => {
+    try {
+        // Get counts for different entities
+        const totalUsers = await User.countDocuments({ role: 'user' });
+        const pendingRegistrations = await registeredUsersModel.countDocuments({ status: 'pending' });
+        const totalIncidents = await Incident.countDocuments();
+        const resolvedIncidents = await Incident.countDocuments({ status: 'resolved' });
+        const openIncidents = await Incident.countDocuments({ status: 'reported' });
+        const inProgressIncidents = await Incident.countDocuments({ status: 'under review' });
+
+        // Get recent incidents
+        const recentIncidents = await Incident.find()
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .populate('reportedBy', 'firstName lastName email');
+
+        // Get monthly incident trends (last 6 months)
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+        const monthlyStats = await Incident.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: sixMonthsAgo }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { "_id.year": 1, "_id.month": 1 }
+            }
+        ]);
+
+        return res.status(200).json({
+            success: true,
+            stats: {
+                totalUsers,
+                pendingRegistrations,
+                totalIncidents,
+                resolvedIncidents,
+                openIncidents,
+                inProgressIncidents,
+                resolutionRate: totalIncidents > 0 ? ((resolvedIncidents / totalIncidents) * 100).toFixed(2) : 0
+            },
+            recentIncidents,
+            monthlyStats
+        });
+    } catch (error) {
+        console.error("Error in fetching dashboard stats: ", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
         });
     }
 };

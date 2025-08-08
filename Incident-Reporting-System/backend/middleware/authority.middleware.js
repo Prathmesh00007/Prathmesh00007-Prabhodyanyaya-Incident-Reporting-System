@@ -8,7 +8,7 @@ const authorityProtect = async (req, res, next) => {
             return res.status(401).json({ message: 'Unauthorized', success: false });
         }
 
-        if (user.role !== 'authority') {
+        if (user.role !== 'authority' && user.role !== 'admin') {
             return res.status(403).json({
                 message: "Access denied",
                 success: false
