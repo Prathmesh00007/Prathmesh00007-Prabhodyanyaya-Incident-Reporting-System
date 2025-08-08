@@ -30,11 +30,9 @@ connectDB()
     .catch(err => console.error("MongoDB connection failed:", err));
 
 // Server Listening
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server is running at: http://localhost:${PORT}`);
 });
-
 
 app.use('/api/auth', authRoutes);
 app.use('/api/authority', authorityRoutes);
