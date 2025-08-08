@@ -13,7 +13,7 @@ const adminRoutes = require('./routes/admin.routes.js')
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:5173'], // Replace with your frontend URL
+    origin: ['http://prabhodanyaya.netlify.app'], // Replace with your frontend URL
     credentials: true,
 }));
 app.use(express.json());
