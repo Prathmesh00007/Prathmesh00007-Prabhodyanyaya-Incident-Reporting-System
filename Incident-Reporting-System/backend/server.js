@@ -13,9 +13,12 @@ const adminRoutes = require('./routes/admin.routes.js')
 
 // Middleware
 app.use(cors({
-    origin: ['http://prabhodanyaya.netlify.app'], // Replace with your frontend URL
-    credentials: true,
-}));
+    origin: 'https://prabhodanyaya.netlify.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+  }));
+  
 app.use(express.json());
 app.use(bodyParser.json({ limit: '20mb' })); // Adjust the size limit accordingly
 app.use(bodyParser.urlencoded({ limit: '20mb', extended: true }));
@@ -27,9 +30,11 @@ connectDB()
     .catch(err => console.error("MongoDB connection failed:", err));
 
 // Server Listening
-app.listen(PORT, () => {
-    console.log(`Server is running at: http://localhost:${PORT}`);
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
 });
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/authority', authorityRoutes);
