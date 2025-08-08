@@ -6,12 +6,12 @@ exports.generateToken = (userId, res) => {
         expiresIn: '7d',
     });
 
-    res.cookie("jwt", token, {
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+    res.cookie('jwt', token, {
         httpOnly: true,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV !== "development", // Use secure cookies in production
-    });
+        secure: true,       // HTTPS only
+        sameSite: 'none',   // cross-site cookie
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 day
+      });
 
     return token;
 };
