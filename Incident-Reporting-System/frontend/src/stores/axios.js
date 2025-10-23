@@ -1,6 +1,6 @@
 import axios from 'axios'
 
 export const axiosInstance = axios.create({
-    baseURL : "http://localhost:5000/api",
+    baseURL : "https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api",
     withCredentials: true,
 });

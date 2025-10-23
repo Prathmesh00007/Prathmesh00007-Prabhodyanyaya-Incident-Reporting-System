@@ -121,7 +121,7 @@ function displayNextSteps() {
   
   log('\n4. Access the application:', 'yellow');
   log('   Frontend: http://localhost:5173', 'green');
-  log('   Backend API: http://localhost:5000', 'green');
+  log('   Backend API: https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com', 'green');
   
   log('\n📚 For more information, see README.md', 'blue');
 }

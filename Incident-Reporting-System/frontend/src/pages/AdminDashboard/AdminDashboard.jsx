@@ -36,7 +36,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       // Fetch dashboard stats
-      const statsResponse = await fetch('http://localhost:5000/api/admin/dashboard-stats', {
+      const statsResponse = await fetch('https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/admin/dashboard-stats', {
         credentials: 'include'
       });
       const statsData = await statsResponse.json();
@@ -47,7 +47,7 @@ const AdminDashboard = () => {
       }
 
       // Fetch pending registrations
-      const registrationsResponse = await fetch('http://localhost:5000/api/admin/view-registrations', {
+      const registrationsResponse = await fetch('https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/admin/view-registrations', {
         credentials: 'include'
       });
       const registrationsData = await registrationsResponse.json();
@@ -57,7 +57,7 @@ const AdminDashboard = () => {
       }
 
       // Fetch all users
-      const usersResponse = await fetch('http://localhost:5000/api/admin/all-users', {
+      const usersResponse = await fetch('https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/admin/all-users', {
         credentials: 'include'
       });
       const usersData = await usersResponse.json();
@@ -74,7 +74,7 @@ const AdminDashboard = () => {
 
   const handleUserApproval = async (userId, approved) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/verify/${userId}`, {
+      const response = await fetch(`https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/admin/verify/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ const AdminDashboard = () => {
   const handleUserRemoval = async (userId) => {
     if (window.confirm('Are you sure you want to remove this user?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/admin/remove-user/${userId}`, {
+        const response = await fetch(`https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/admin/remove-user/${userId}`, {
           method: 'DELETE',
           credentials: 'include'
         });

@@ -52,7 +52,7 @@ Incident-Reporting-System/
    ```sh
    npm start
    ```
-   The server runs on `http://localhost:5000` by default.
+   The server runs on `https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com` by default.
 
 ---
 

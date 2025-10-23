@@ -39,7 +39,7 @@ const AuthorityDashboard = () => {
       setLoading(true);
       
       // Fetch authority dashboard stats
-      const statsResponse = await fetch('http://localhost:5000/api/authority/dashboard', {
+      const statsResponse = await fetch('https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/authority/dashboard', {
         credentials: 'include'
       });
       const statsData = await statsResponse.json();
@@ -49,7 +49,7 @@ const AuthorityDashboard = () => {
       }
 
       // Fetch assigned incidents
-      const assignedResponse = await fetch('http://localhost:5000/api/authority/assigned-incidents', {
+      const assignedResponse = await fetch('https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/authority/assigned-incidents', {
         credentials: 'include'
       });
       const assignedData = await assignedResponse.json();
@@ -59,7 +59,7 @@ const AuthorityDashboard = () => {
       }
 
       // Fetch all incidents
-      const allIncidentsResponse = await fetch('http://localhost:5000/api/authority/view-incidents', {
+      const allIncidentsResponse = await fetch('https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/authority/view-incidents', {
         credentials: 'include'
       });
       const allIncidentsData = await allIncidentsResponse.json();
@@ -69,7 +69,7 @@ const AuthorityDashboard = () => {
       }
 
       // Fetch feedback data
-      const feedbackResponse = await fetch('http://localhost:5000/api/authority/feedback', {
+      const feedbackResponse = await fetch('https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/authority/feedback', {
         credentials: 'include'
       });
       const feedbackData = await feedbackResponse.json();
@@ -91,7 +91,7 @@ const AuthorityDashboard = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/authority/update-incident/${incidentId}`, {
+      const response = await fetch(`https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/authority/update-incident/${incidentId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ const AuthorityDashboard = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/authority/update-status', {
+      const response = await fetch('https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/authority/update-status', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ const AuthorityDashboard = () => {
   const handleMarkAsResolved = async (incidentId) => {
     if (window.confirm('Are you sure you want to mark this incident as resolved?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/authority/mark-solved/${incidentId}`, {
+        const response = await fetch(`https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/authority/mark-solved/${incidentId}`, {
           method: 'PUT',
           credentials: 'include'
         });

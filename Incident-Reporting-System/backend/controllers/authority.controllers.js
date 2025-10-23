@@ -346,17 +346,17 @@ exports.getAuthorityDashboard = async (req, res) => {
         const authorityId = req.user._id;
 
         // Get counts for different incident statuses
-        const totalAssigned = await incidentModel.countDocuments({ assignedTo: authorityId });
+        const totalAssigned = await incidentModel.countDocuments();
         const resolvedCount = await incidentModel.countDocuments({ 
-            assignedTo: authorityId, 
+           
             status: 'resolved' 
         });
         const inProgressCount = await incidentModel.countDocuments({ 
-            assignedTo: authorityId, 
+          
             status: 'under review' 
         });
         const pendingCount = await incidentModel.countDocuments({ 
-            assignedTo: authorityId, 
+         
             status: 'reported' 
         });
 

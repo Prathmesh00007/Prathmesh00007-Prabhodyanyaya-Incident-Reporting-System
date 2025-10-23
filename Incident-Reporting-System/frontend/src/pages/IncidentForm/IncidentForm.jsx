@@ -2,32 +2,68 @@ import React, { useState } from "react";
 import { useAuthStore } from "../../stores/authStore";
 
 const IncidentForm = () => {
+  const { reportIncident, isReportingIncident } = useAuthStore();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     location: "",
-    severity: "low", // Default value
-    image: "",
+    severity: "low",
+    image: null,
   });
 
-  const { reportIncident, isReportingIncident } = useAuthStore();
+  const [errors, setErrors] = useState({});
+  const [previewUrl, setPreviewUrl] = useState("");
 
-  const [photoFile, setPhotoFile] = useState(null);
-
-  const handlePhotoFile = (e) => {
-    const file = e.target.files[0];
-    if (file) setPhotoFile(file);
-  };
-
-
+  // Handle text/select inputs
   const handleChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [id]: value }));
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  // Handle image file selection
+  const handlePhotoFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type/size if needed
+    setFormData((prev) => ({ ...prev, image: file }));
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  // Basic client-side validation
+  const validate = () => {
+    const errs = {};
+    if (!formData.title.trim()) errs.title = "Title is required";
+    if (!formData.description.trim()) errs.description = "Description is required";
+    if (!formData.location.trim()) errs.location = "Location is required";
+    if (!formData.image) errs.image = "Please upload an image";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await reportIncident(formData);
+    if (!validate()) return;
+
+    const payload = new FormData();
+    payload.append("title", formData.title);
+    payload.append("description", formData.description);
+    payload.append("location", formData.location);
+    payload.append("severity", formData.severity);
+    payload.append("image", formData.image);
+
+    try {
+      await reportIncident(payload);
+      // Optionally clear form / give feedback
+      setFormData({ title: "", description: "", location: "", severity: "low", image: null });
+      setPreviewUrl("");
+      setErrors({});
+    } catch (err) {
+      console.error("Submit failed:", err);
+      // Handle/report server errors here
+    }
   };
 
   return (
@@ -42,22 +78,25 @@ const IncidentForm = () => {
 
         {/* Title */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2" htmlFor="title">
+          <label htmlFor="title" className="block text-gray-700 font-medium mb-2">
             Title
           </label>
           <input
-            type="text"
             id="title"
+            type="text"
             value={formData.title}
             onChange={handleChange}
             placeholder="Enter a title for the incident"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+              errors.title ? "border-red-500 focus:ring-red-400" : "focus:ring-blue-500"
+            }`}
           />
+          {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
         </div>
 
         {/* Description */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2" htmlFor="description">
+          <label htmlFor="description" className="block text-gray-700 font-medium mb-2">
             Description
           </label>
           <textarea
@@ -66,28 +105,34 @@ const IncidentForm = () => {
             onChange={handleChange}
             rows="4"
             placeholder="Provide a detailed description of the incident"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          ></textarea>
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+              errors.description ? "border-red-500 focus:ring-red-400" : "focus:ring-blue-500"
+            }`}
+          />
+          {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
         </div>
 
         {/* Location */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2" htmlFor="location">
+          <label htmlFor="location" className="block text-gray-700 font-medium mb-2">
             Location
           </label>
           <input
-            type="text"
             id="location"
+            type="text"
             value={formData.location}
             onChange={handleChange}
             placeholder="Enter the location of the incident"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+              errors.location ? "border-red-500 focus:ring-red-400" : "focus:ring-blue-500"
+            }`}
           />
+          {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
         </div>
 
         {/* Severity */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2" htmlFor="severity">
+          <label htmlFor="severity" className="block text-gray-700 font-medium mb-2">
             Severity
           </label>
           <select
@@ -105,27 +150,34 @@ const IncidentForm = () => {
 
         {/* Image Upload */}
         <div className="mb-6">
-          <label className="block text-gray-700 font-medium mb-2" htmlFor="images">
+          <label htmlFor="image" className="block text-gray-700 font-medium mb-2">
             Upload Image
           </label>
           <input
+            id="image"
             type="file"
-            id="images"
-            value={formData.photoFile}
+            accept="image/*"
             onChange={handlePhotoFile}
-            className="w-full text-gray-700"
+            className={`w-full text-gray-700 ${
+              errors.image ? "border-red-500" : ""
+            }`}
           />
-          <p className="text-sm text-gray-500 mt-1">
-            You can upload one image for the incident.
-          </p>
+          {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
+          {previewUrl && (
+            <img
+              src={previewUrl}
+              alt="preview"
+              className="mt-2 max-h-48 rounded-md border"
+            />
+          )}
         </div>
 
         {/* Submit Button */}
         <div className="text-center">
           <button
             type="submit"
-            className="bg-blue-500 text-white font-medium px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={isReportingIncident}
+            className="bg-blue-500 text-white font-medium px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
             {isReportingIncident ? "Submitting..." : "Submit Incident"}
           </button>

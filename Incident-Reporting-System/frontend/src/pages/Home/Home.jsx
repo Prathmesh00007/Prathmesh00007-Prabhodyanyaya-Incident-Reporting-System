@@ -45,7 +45,7 @@ const Home = () => {
       } else if (authUser) {
         // For regular users, fetch their personal stats
         console.log('Home - Using user incidents endpoint');
-        const incidentsResponse = await fetch('http://localhost:5000/api/auth/user-incidents', {
+        const incidentsResponse = await fetch('https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/auth/user-incidents', {
           credentials: 'include'
         });
         console.log('Home - User incidents response status:', incidentsResponse.status);
@@ -70,7 +70,7 @@ const Home = () => {
       }
 
       if (endpoint) {
-        const response = await fetch(`http://localhost:5000/api${endpoint}`, {
+        const response = await fetch(`https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api${endpoint}`, {
           credentials: 'include'
         });
         if (response.ok) {

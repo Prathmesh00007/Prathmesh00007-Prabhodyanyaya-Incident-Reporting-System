@@ -143,7 +143,7 @@ npm run dev
 
 ### 4. Access the Application
 - Frontend: http://localhost:5173
-- Backend API: http://localhost:5000
+- Backend API: https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com
 
 ## 🔧 Environment Variables
 

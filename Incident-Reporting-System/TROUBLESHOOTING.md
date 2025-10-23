@@ -88,7 +88,7 @@ Use the debug endpoint to check your database:
 
 ```bash
 # Check all users in both collections
-GET http://localhost:5000/api/auth/debug/users
+GET https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/auth/debug/users
 ```
 
 ## 🐛 **Common Issues and Solutions**
@@ -160,12 +160,12 @@ Use Postman or curl to test:
 
 ```bash
 # Test login
-curl -X POST http://localhost:5000/api/auth/login \
+curl -X POST https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"password"}'
 
 # Test debug endpoint
-curl http://localhost:5000/api/auth/debug/users
+curl https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/auth/debug/users
 ```
 
 ## 🚀 **Quick Fix for Existing Users**

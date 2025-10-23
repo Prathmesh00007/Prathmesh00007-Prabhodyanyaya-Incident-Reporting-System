@@ -52,7 +52,7 @@ const UserDashboard = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/submit-feedback`, {
+      const response = await fetch(`https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/api/auth/submit-feedback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
