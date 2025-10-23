@@ -2,7 +2,8 @@ name: Keep Render Awake
 
 on:
   schedule:
-    - cron: '* * * * *' # every minute UTC
+    - cron: '*/5 * * * *'  # every 5 minutes (UTC)
+  workflow_dispatch: {}     # optional manual trigger
 
 jobs:
   ping:
@@ -10,8 +11,11 @@ jobs:
     steps:
       - name: Ping Render
         run: |
-          status=$(curl -o /dev/null -s -w "%{http_code}" https://prathmesh00007-prabhodyanyaya-incident.onrender.com)
-          if [ "$status" -ne 200 ]; then
+          set -e
+          URL="https://prathmesh00007-prabhodyanyaya-incident-ostr.onrender.com/"
+          status=$(curl -o /dev/null -s -w "%{http_code}" "$URL")
+          if [ "$status" -lt 200 ] || [ "$status" -ge 400 ]; then
             echo "❌ Ping failed: HTTP $status" >&2
             exit 1
           fi
+          echo "✅ OK: HTTP $status"
