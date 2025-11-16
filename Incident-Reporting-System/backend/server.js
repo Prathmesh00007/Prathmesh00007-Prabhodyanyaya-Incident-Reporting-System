@@ -30,7 +30,8 @@ const allowedOrigins = [
   'http://localhost:5173',       // Vite/React dev
   'http://192.168.1.7:19006',    // Another LAN dev IP
   'exp://192.168.1.7:19000',     // Expo tunnel
-  'exp://localhost:19000'        // Expo local
+  'exp://localhost:19000',       // Expo local
+  'https://prabhodanyaya.netlify.app/'
 ];
 
 app.use(cors({
